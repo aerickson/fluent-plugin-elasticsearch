@@ -49,6 +49,8 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
   config_param :remove_keys_on_update_key, :string, :default => nil
   config_param :flatten_hashes, :bool, :default => false
   config_param :flatten_hashes_separator, :string, :default => "_"
+  config_param :template_name, :string, :default => nil
+  config_param :template_file, :string, :default => nil
 
   include Fluent::SetTagKeyMixin
   config_set_default :include_tag_key, false
@@ -139,8 +141,37 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
       end
 
       log.info "Connection opened to Elasticsearch cluster => #{connection_options_description}"
+
+      if @template_file and @template_name
+        if !template_exists?(@template_name)
+          template_put(@template_name, @template_file)
+          log.info("Template configured, but no template installed. Installed '#{@template_name}' from #{@template_file}.")
+        else
+          log.info("Template configured and already installed.")
+        end
+      end
+
       es
     end
+  end
+
+  def template_install(name, template, force=false)
+    if template_exists?(name) && !force
+      @logger.debug("Found existing Elasticsearch template. Skipping template management", :name => name)
+      return
+    end
+    template_put(name, template)
+  end
+
+  def template_exists?(name)
+    client.indices.get_template(:name => name)
+    return true
+  rescue Elasticsearch::Transport::Transport::Errors::NotFound
+    return false
+  end
+
+  def template_put(name, template)
+    client.indices.put_template(:name => name, :body => template)
   end
 
   def get_connection_options
