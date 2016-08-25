@@ -142,25 +142,21 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
 
       log.info "Connection opened to Elasticsearch cluster => #{connection_options_description}"
 
-      if @template_file and @template_name
-        if !template_exists?(@template_name)
-          template_put(@template_name, @template_file)
-          log.info("Template configured, but no template installed. Installed '#{@template_name}' from #{@template_file}.")
-        else
-          log.info("Template configured and already installed.")
-        end
+      if @template_name and @template_file
+        template_install(@template_name, @template_file)
       end
 
       es
     end
   end
 
-  def template_install(name, template, force=false)
-    if template_exists?(name) && !force
-      @logger.debug("Found existing Elasticsearch template. Skipping template management", :name => name)
-      return
+  def template_install(name, template)
+    if !template_exists?(name)
+      template_put(name, template)
+      log.info("Template configured, but no template installed. Installed '#{name}' from #{template}.")
+    else
+      log.info("Template configured and already installed.")
     end
-    template_put(name, template)
   end
 
   def template_exists?(name)
