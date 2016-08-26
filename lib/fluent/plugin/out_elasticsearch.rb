@@ -160,10 +160,8 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
   end
 
   def get_template
-    if @template_file.nil?
-      if !File.exists?(@template_file)
-        raise "If you specify a template_name you must specify a valid template file (checked '#{@template_file}')!"
-      end
+    if !File.exists?(@template_file)
+      raise "If you specify a template_name you must specify a valid template file (checked '#{@template_file}')!"
     end
     file_contents = IO.read(@template_file).gsub(/\n/,'')
     template = JSON.parse(file_contents)
