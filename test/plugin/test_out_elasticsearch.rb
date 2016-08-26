@@ -31,9 +31,7 @@ class ElasticsearchOutput < Test::Unit::TestCase
   end
 
   def stub_index_call(url="https://logs.google.com:777/es//")
-    stub_request(:head, url).
-        with(:headers => {'Authorization'=>'Basic am9objpkb2U=', 'Host'=>'logs.google.com:777', 'User-Agent'=>'Faraday v0.9.2'}).
-        to_return(:status => 200, :body => "", :headers => {})
+    stub_request(:head, url).to_return(:status => 200, :body => "", :headers => {})
   end
 
   def stub_elastic_unavailable(url="http://localhost:9200/_bulk")
@@ -84,12 +82,17 @@ class ElasticsearchOutput < Test::Unit::TestCase
     }
 
     stub_index_call
-    instance = driver('test', config).instance
 
-    assert_equal 'logs.google.com', instance.host
-    assert_equal 777, instance.port
-    assert_equal 'https', instance.scheme
-    assert_equal '/es/', instance.path
+    stub_request(:get, "https://logs.google.com:777/es//_template/logstash").
+      with(:headers => {'Authorization'=>'Basic am9objpkb2U=', 'Host'=>'logs.google.com:777', 'User-Agent'=>'Faraday v0.9.2'}).
+      to_return(:status => 200, :body => "", :headers => {})
+
+    driver('test', config).emit(sample_record)
+
+    # assert_equal 'logs.google.com', instance.host
+    # assert_equal 777, instance.port
+    # assert_equal 'https', instance.scheme
+    # assert_equal '/es/', instance.path
   end
 
   def test_legacy_hosts_list
