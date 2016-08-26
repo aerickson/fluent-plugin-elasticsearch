@@ -79,6 +79,10 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
     if @remove_keys_on_update && @remove_keys_on_update.is_a?(String)
       @remove_keys_on_update = @remove_keys_on_update.split ','
     end
+
+    if @template_name and @template_file
+      template_install(@template_name, @template_file)
+    end
   end
 
   def start
@@ -141,11 +145,6 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
       end
 
       log.info "Connection opened to Elasticsearch cluster => #{connection_options_description}"
-
-      if @template_name and @template_file
-        template_install(@template_name, @template_file)
-      end
-
       es
     end
   end
