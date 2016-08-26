@@ -2,6 +2,7 @@
 require 'date'
 require 'excon'
 require 'elasticsearch'
+require 'json'
 require 'uri'
 begin
   require 'strptime'
@@ -149,13 +150,25 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
     end
   end
 
-  def template_install(name, template)
+  def template_install(name, template_file)
     if !template_exists?(name)
-      template_put(name, template)
-      log.info("Template configured, but no template installed. Installed '#{name}' from #{template}.")
+      template_put(name, get_template())
+      log.info("Template configured, but no template installed. Installed '#{name}' from #{template_file}.")
     else
       log.info("Template configured and already installed.")
     end
+  end
+
+  def get_template
+    if @template_file.nil?
+      if !File.exists?(@template_file)
+        raise "If you specify a template_name you must specify a valid template file (checked '#{@template_file}')!"
+      end
+    end
+    file_contents = IO.read(@template_file).gsub(/\n/,'')
+    template = JSON.parse(file_contents)
+    log.info("Using mapping template", :template => @template_file)
+    return template
   end
 
   def template_exists?(name)
