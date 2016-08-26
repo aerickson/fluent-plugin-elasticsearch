@@ -167,7 +167,6 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
     end
     file_contents = IO.read(@template_file).gsub(/\n/,'')
     template = JSON.parse(file_contents)
-    log.info("Using mapping template", :template => @template_file)
     return template
   end
 
