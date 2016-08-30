@@ -171,7 +171,7 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
   def template_exists?(name)
     client.indices.get_template(:name => name)
     return true
-  rescue Elasticsearch::Transport::Transport::Errors::NotFound
+  rescue
     return false
   end
 
