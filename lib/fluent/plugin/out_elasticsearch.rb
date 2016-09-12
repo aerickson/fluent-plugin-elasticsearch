@@ -84,7 +84,7 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
       @remove_keys_on_update = @remove_keys_on_update.split ','
     end
 
-    if @template_name and @template_file
+    if @template_name && @template_file
       template_install(@template_name, @template_file)
     end
   end
