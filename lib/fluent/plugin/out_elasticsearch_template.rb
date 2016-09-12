@@ -1,10 +1,10 @@
 module Fluent::ElasticsearchOutputTemplate
 
-  def get_template
-    if !File.exists?(@template_file)
-      raise "If you specify a template_name you must specify a valid template file (checked '#{@template_file}')!"
+  def get_template(template_file)
+    if !File.exists?(template_file)
+      raise "If you specify a template_name you must specify a valid template file (checked '#{template_file}')!"
     end
-    file_contents = IO.read(@template_file).gsub(/\n/,'')
+    file_contents = IO.read(template_file).gsub(/\n/,'')
     JSON.parse(file_contents)
   end
 
@@ -21,7 +21,7 @@ module Fluent::ElasticsearchOutputTemplate
 
   def template_install(name, template_file)
     if !template_exists?(name)
-      template_put(name, get_template())
+      template_put(name, get_template(template_file))
       log.info("Template configured, but no template installed. Installed '#{name}' from #{template_file}.")
     else
       log.info("Template configured and already installed.")
