@@ -5,8 +5,7 @@ module Fluent::ElasticsearchOutputTemplate
       raise "If you specify a template_name you must specify a valid template file (checked '#{@template_file}')!"
     end
     file_contents = IO.read(@template_file).gsub(/\n/,'')
-    template = JSON.parse(file_contents)
-    return template
+    JSON.parse(file_contents)
   end
 
   def template_exists?(name)
