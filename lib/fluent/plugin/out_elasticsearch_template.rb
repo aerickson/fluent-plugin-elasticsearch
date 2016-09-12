@@ -11,10 +11,7 @@ module Fluent::ElasticsearchOutputTemplate
   def template_exists?(name)
     client.indices.get_template(:name => name)
     return true
-  # TODO: causes error when fluent-plugin-amazonelasticseasrch uses this plugin
-  #   - figure out why...
   rescue Elasticsearch::Transport::Transport::Errors::NotFound
-  # rescue
     return false
   end
 
